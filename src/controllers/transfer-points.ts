@@ -4,66 +4,107 @@ import { Prisma } from "@prisma/client";
 
 // import { AppError } from "../utils/app-error";
 
-export const transferPoints = async (
-    req: Request, res: Response, next: any
-) => {
+export const transferPoints = async (req: Request, res: Response) => {
     const { senderId, receiverId, amount } = req.body;
 
     try {
-        // const sender = await prisma.user.findUnique({ where: { id: senderId } });
-        // const receiver = await prisma.user.findUnique({
-        // where: { id: receiverId },
-        // });
+        // 1. Cek user existence (sebelum transaction)
+        const [senderExists, receiverExists] = await Promise.all([
+        prisma.user.findUnique({ where: { id: senderId } }),
+        prisma.user.findUnique({ where: { id: receiverId } }),
+        ]);
 
-        const [sender, receiver] = await Promise.all([
-            prisma.user.findUnique({where: { id: senderId }}),
-            prisma.user.findUnique({where: { id: receiverId }})
-        ])
-
-        if (!sender) {
-            return res.status(400).json({
+        if (!senderExists) {
+        return res.status(404).json({
             success: false,
             message: "Pengirim tidak ditemukan",
         });
-        } else if (!receiver) {
-            return res.status(400).json({
+        }
+
+        if (!receiverExists) {
+        return res.status(404).json({
             success: false,
             message: "Penerima tidak ditemukan",
         });
-        } else if (sender.points < amount){
-            return res.status(400).json({
-            success: false,
-            message: "Poin tidak mencukupi",
-        });
         }
 
-        // if (sender.points < amount) {
-        //     return res.status(400).json({
-        //     success: false,
-        //     message: "Poin tidak mencukupi",
-        // });
-        // // throw new AppError("Poin tidak mencukupi", 400);
-        // }
-
-        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        await tx.user.update({
+        // 2. Transaction (atomic)
+        await prisma.$transaction(async (tx) => {
+        const sender = await tx.user.update({
             where: { id: senderId },
             data: { points: { decrement: amount } },
-        })
+        });
+
+        // 3. Validasi saldo di DALAM transaction
+        if (sender.points < 0) {
+            throw new Error("Poin pengirim tidak mencukupi");
+        }
+
         await tx.user.update({
             where: { id: receiverId },
             data: { points: { increment: amount } },
-        })
-
-        // // Uncomment untuk testing rollback
-        // throw new Error("Simulasi error");
         });
-        res.status(200).json({ success: true, message: "Transfer poin berhasil" });
+        });
 
-    } catch (error) {
-        res.status(200).json({ success: true, message: "Internal server error" });
+        // 4. Response sukses
+        res.status(200).json({
+        success: true,
+        message: "Transfer poin berhasil",
+        });
+
+    } catch (error: any) {
+        res.status(400).json({
+        success: false,
+        message: error.message || "Transfer gagal",
+        });
     }
 };
+
+// export const transferPoints = async (
+//     req: Request, res: Response, next: any
+// ) => {
+//     const { senderId, receiverId, amount } = req.body;
+
+//     try {
+//         const [sender, receiver] = await Promise.all([
+//             prisma.user.findUnique({where: { id: senderId }}),
+//             prisma.user.findUnique({where: { id: receiverId }})
+//         ])
+
+//         if (!sender) {
+//             return res.status(400).json({
+//             success: false,
+//             message: "Pengirim tidak ditemukan",
+//         });
+//         } else if (!receiver) {
+//             return res.status(400).json({
+//             success: false,
+//             message: "Penerima tidak ditemukan",
+//         });
+//         } else if (sender.points < amount){
+//             return res.status(400).json({
+//             success: false,
+//             message: "Poin tidak mencukupi",
+//         });
+//         }
+
+//         await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+//         await tx.user.update({
+//             where: { id: senderId },
+//             data: { points: { decrement: amount } },
+//         })
+//         await tx.user.update({
+//             where: { id: receiverId },
+//             data: { points: { increment: amount } },
+//         })
+
+//         });
+//         res.status(200).json({ success: true, message: "Transfer poin berhasil" });
+
+//     } catch (error) {
+//         res.status(200).json({ success: true, message: "Internal server error" });
+//     }
+// };
 
 export const getUserPoints = async (
     req: Request, res: Response, next: any ) => 
