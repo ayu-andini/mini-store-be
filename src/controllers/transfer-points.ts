@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../prisma/client";
-import { AppError } from "../utils/app-error";
+import AppError from "../utils/app-error";
 
 export const transferPoints = async (req: Request, res: Response) => {
     const { senderId, receiverId, amount } = req.body;
@@ -16,12 +16,6 @@ export const transferPoints = async (req: Request, res: Response) => {
         // return res.status(404).json({
         //     success: false,
         //     message: "Pengirim tidak ditemukan",
-        // }); }
-
-        // if (!receiverExists) {
-        // return res.status(404).json({
-        //     success: false,
-        //     message: "Penerima tidak ditemukan",
         // }); }
 
         // fokus logic saja

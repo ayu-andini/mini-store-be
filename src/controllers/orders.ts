@@ -98,14 +98,14 @@ export const createOrder = async (req: Request, res: Response) => {
                 throw new ProductNotFoundError();
             }
 
-            if (product.stock < quantity) {
-                throw new InsufficientStockError(`Not enough stock for product ${product.name}. Available: ${product.stock}, Requested: ${quantity}`);
-            }
+            // if (product.stock < quantity) {
+            //     throw new InsufficientStockError(`Not enough stock for product ${product.name}. Available: ${product.stock}, Requested: ${quantity}`);
+            // }
 
-            const updatedProduct = await prisma.product.update({
-                where: { id: productId },
-                data: { stock: product.stock - quantity },
-            });
+            // const updatedProduct = await prisma.product.update({
+            //     where: { id: productId },
+            //     data: { stock: product.stock - quantity },
+            // });
 
             const order = await prisma.order.create({
                 data: {
@@ -119,7 +119,7 @@ export const createOrder = async (req: Request, res: Response) => {
                 }
             });
 
-            return { order, updatedProduct };
+            return { order };
         });
 
         res.status(201).json({ message: "Order created successfully", data: result.order });

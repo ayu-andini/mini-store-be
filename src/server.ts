@@ -1,18 +1,11 @@
-// import { AppError } from "./utils/app-error";
+// import app from './app';
+// import dotenv from 'dotenv';
 
-// app.use((err: any, req: any, res: any, next: any) => {
-//     if (err instanceof AppError) {
-//         return res.status(err.statusCode).json({
-//         success: false,
-//         message: err.message,
-//         });
-//     }
+// dotenv.config();
 
-//     // error tidak dikenal
-//     console.error(err);
+// const port = process.env.PORT;
 
-//     res.status(500).json({
-//         success: false,
-//         message: "Internal Server Error",
-//     });
+// app.listen(port, () => {
+//   console.log(`Server is running on port ${port}`);
 // });
+

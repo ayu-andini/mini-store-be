@@ -12,6 +12,7 @@ const router = express.Router()
 
 router.get('/orders/summary', getOrdersSummary)
 // router.get('/orders/summary/:id', getOrdersSummaryDetail)
+
 router.get('/orders', getAllOrders)
 router.get('/order/:id', getOrderById)
 router.post('/order', createOrder)
