@@ -1,5 +1,3 @@
-// middleware/validateTransfer.ts
-
 import { Request, Response, NextFunction } from "express";
 
 export const validateTransfer = (

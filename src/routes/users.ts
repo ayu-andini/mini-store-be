@@ -1,6 +1,6 @@
 import express from "express";
 import { transferPoints, getUserPoints } from "../controllers/transfer-points";
-import { validateTransfer } from '../utils/validate-tf-middleware';
+import { validateTransfer } from '../middleware/validate-transfer';
 import { getAllUsers } from "../controllers/users";
 
 const router = express.Router();

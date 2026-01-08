@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../prisma/client";
-import { Prisma } from "@prisma/client";
-
-// import { AppError } from "../utils/app-error";
+import { AppError } from "../utils/app-error";
 
 export const transferPoints = async (req: Request, res: Response) => {
     const { senderId, receiverId, amount } = req.body;
@@ -14,19 +12,21 @@ export const transferPoints = async (req: Request, res: Response) => {
         prisma.user.findUnique({ where: { id: receiverId } }),
         ]);
 
-        if (!senderExists) {
-        return res.status(404).json({
-            success: false,
-            message: "Pengirim tidak ditemukan",
-        });
-        }
+        // if (!senderExists) {
+        // return res.status(404).json({
+        //     success: false,
+        //     message: "Pengirim tidak ditemukan",
+        // }); }
 
-        if (!receiverExists) {
-        return res.status(404).json({
-            success: false,
-            message: "Penerima tidak ditemukan",
-        });
-        }
+        // if (!receiverExists) {
+        // return res.status(404).json({
+        //     success: false,
+        //     message: "Penerima tidak ditemukan",
+        // }); }
+
+        // fokus logic saja
+        if (!senderExists ){ throw new AppError("Sender not found", 404); }
+        if (!receiverExists ){ throw new AppError("Receiver not found", 404); }
 
         // 2. Transaction (atomic)
         await prisma.$transaction(async (tx) => {
@@ -107,8 +107,7 @@ export const transferPoints = async (req: Request, res: Response) => {
 // };
 
 export const getUserPoints = async (
-    req: Request, res: Response, next: any ) => 
-    {
+    req: Request, res: Response, next: any ) => {
     try {
         const userId = Number(req.params.id);
         const userPoints = await prisma.user.findUnique({
@@ -116,14 +115,13 @@ export const getUserPoints = async (
         select: { id: true, name: true, points: true },
         });
 
-//     if (!user) {
-//       res.status(404).json({ error: "User tidak ditemukan" });
-//       return;
-//     }
+        // cek hasil query
+        if (!userPoints ){ throw new AppError("User not found", 404); }
 
-    res.status(200).json({
-        message: "Data poin user ditemukan",
-        data: userPoints});
+        // jika ditemukan
+        res.status(200).json({
+            message: "Data poin user ditemukan",
+            data: userPoints});
 
     } catch (error) {
         next(error);
