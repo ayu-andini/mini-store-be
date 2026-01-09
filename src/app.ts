@@ -3,34 +3,23 @@ import products from "./routes/products";
 import orders from "./routes/orders";
 import users from "./routes/users";
 import suppliers from "./routes/suppliers";
+import auth from "./routes/auth";
+
 import { errorHandler } from "./middleware/error-handler";
 import AppError from "./utils/app-error";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-// import { NextFunction, Request, Response } from "express";
+app.use('/api/v1', 
+    products, orders, users, suppliers, auth);
 
-// Global error handling middleware
-// app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-//     console.error(err); // Log the error for debugging
-
-//     if (err instanceof AppError) {
-//         return res.status(err.statusCode).json({
-//             status: "error",
-//             message: err.message,
-//         });
-//     }
-//     return res.status(500).json({
-//         status: "error",
-//         message: "Internal Server Error",
-//     });
+// app.all('*', (req, res, next) => {
+//     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 // });
-
-app.use('/api/v1', products)
-app.use('/api/v1', orders)
-app.use('/api/v1', users)
-app.use('/api/v1', suppliers);
 
 app.use((req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
@@ -40,5 +29,6 @@ app.use((req, res, next) => {
 
 app.listen(process.env.PORT, ()=>{
     console.log("server is running");
-    
+
+    if (!process.env.JWT_SECRET) { throw new Error('JWT_SECRET is not defined'); }   
 })

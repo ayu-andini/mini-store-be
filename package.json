@@ -16,11 +16,18 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.19.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
+    "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.3",
     "prisma": "^6.19.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
+    "@types/joi": "^17.2.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }

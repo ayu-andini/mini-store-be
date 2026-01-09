@@ -3,15 +3,6 @@ import { prisma } from '../prisma/client';
 import AppError from '../utils/app-error';
 import { Prisma } from '@prisma/client';
 
-export const getStock = async (req: Request, res: Response) => {
-  try {
-        const stocks = await prisma.stock.findMany()
-        res.json({message:"Showed All Data Stocks", data: stocks})
-    } catch (error) {
-        res.status(500).json({error: "failed to data stocks"})
-    }
-}
-
 export const getSupplier = async (req: Request, res: Response) => {
   try {
         const suppliers = await prisma.supplier.findMany()
@@ -21,19 +12,15 @@ export const getSupplier = async (req: Request, res: Response) => {
     }
 }
 
-export const createSupplier = async (req: Request, res: Response) => {
-      try {
-        const{ email } = req.body
-        const supplier = await prisma.supplier.create({
-            data:{ email },
-        })
-        // res.status(201).json(product)
-        res.status(201).json({ message: "Added New Supplier", data: supplier })
-        
-    } catch (error) {
-        res.status(500).json({error: "failed to create supplier"})
-    }
-};
+// Extend the Request type to include supplier property
+declare module 'express-serve-static-core' {
+  interface Request {
+    supplier?: {
+      id: number;
+      email: string;
+    };
+  }
+}
 
 // export const createStock = async (req: Request, res: Response, next: NextFunction) => {
 //   const { productId, supplierId, quantity } = req.body;
@@ -74,6 +61,29 @@ export const createSupplier = async (req: Request, res: Response) => {
 //     next(error);
 //   }
 // };
+
+export const getStocks = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.supplier) {
+      return next(new AppError('Unauthorized: Supplier not found in request', 401));
+    }
+
+    const stocks = await prisma.stock.findMany({
+      where: { supplierId: req.supplier.id },
+      include: { product: true },
+    });
+
+    res.status(200).json({
+      status: 'success',
+      results: stocks.length,
+      data: {
+        stocks,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const updateStock = async (req: Request, res: Response, next: NextFunction) => {
   const { stocks } = req.body;

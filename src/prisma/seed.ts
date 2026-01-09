@@ -37,19 +37,19 @@ async function main() {
 
   // 3️⃣ Seed Products
   const keyboard = await prisma.product.create({
-    data: { name: "Keyboard", price: 350_000, stock: 10 },
+    data: { name: "Keyboard", price: 350_000 },
   });
 
   const mouse = await prisma.product.create({
-    data: { name: "Mouse", price: 30_000, stock: 15 },
+    data: { name: "Mouse", price: 30_000 },
   });
 
   const monitor = await prisma.product.create({
-    data: { name: "Monitor", price: 700_000, stock: 20 },
+    data: { name: "Monitor", price: 700_000 },
   });
 
   const laptop = await prisma.product.create({
-    data: { name: "Laptop", price: 8_050_000, stock: 5 },
+    data: { name: "Laptop", price: 8_050_000 },
   });
 
   // 4️⃣ Seed Orders

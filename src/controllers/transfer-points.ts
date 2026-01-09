@@ -21,7 +21,7 @@ export const transferPoints = async (req: Request, res: Response) => {
         // fokus logic saja
         if (!senderExists ){ throw new AppError("Sender not found", 404); }
         if (!receiverExists ){ throw new AppError("Receiver not found", 404); }
-
+  
         // 2. Transaction (atomic)
         await prisma.$transaction(async (tx) => {
         const sender = await tx.user.update({
